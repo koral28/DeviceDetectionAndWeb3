@@ -31,12 +31,12 @@ const UserInfoComp = () => {
         break;
       case "iPad":
         setHostType("desktop-browser");
-        setDeviceType("desktop");
+        setDeviceType("mobile");
         setDeviceName("ipad");
         break;
       case "iPod":
         setHostType("desktop-browser");
-        setDeviceType("desktop");
+        setDeviceType("mobile");
         setDeviceName("ipad");
         break;
       case "Android Device":
@@ -54,7 +54,7 @@ const UserInfoComp = () => {
   };
 
   const showInfoAboutDevice = () => {
-    navigator.userAgent.match(/wv/i)
+    navigator.userAgent.match(/;wv/i)
       ? setInfo("Android WebView")
       : navigator.userAgent.match(/Mobile/i) &&
         !navigator.userAgent.match(/Safari/i)
