@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import Web3 from "web3";
 import { keccak256 } from "ethereum-cryptography/keccak";
 import { HDKey } from "ethereum-cryptography/hdkey";
+import * as bip39 from "bip39";
 
 const CreateWeb3AccountComp = () => {
   const { register, handleSubmit, errors } = useForm();
@@ -24,35 +25,40 @@ const CreateWeb3AccountComp = () => {
   };
 
   const onSubmit = () => {
-    const seed =
-      "fffcf9f6f3f0edeae7e4e1dedbd8d5d2cfccc9c6c3c0bdbab7b4b1aeaba8a5a29f9c999693908d8a8784817e7b7875726f6c696663605d5a5754514e4b484542";
-    const hdkey = HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
+    // const mnemonic = bip39.generateMnemonic();
+    const BIP39Seed = bip39.mnemonicToSeedSync(mnemonic).toString("hex");
+    const hdkey = HDKey.fromMasterSeed(Buffer.from(BIP39Seed, "hex"));
+    const BIP32RootKey = hdkey.privateExtendedKey;
+    const key = keccak256(Buffer.from(BIP32RootKey)).toString("hex");
     const childkey = hdkey.derive(path);
-    const addressFromUser = childkey.privateExtendedKey;
-    const privateKeyFromUser = keccak256(Buffer.from(mnemonic)).toString("hex");
-    web3CreateAccount(privateKeyFromUser, addressFromUser);
+    const BIP32ExtendedPrivateKey = childkey.privateExtendedKey;
+    const key2 = keccak256(Buffer.from(BIP32ExtendedPrivateKey)).toString(
+      "hex"
+    );
+    web3CreateAccount(key, key2);
   };
 
-  const web3CreateAccount = (privateKeyFromUser, addressFromUser) => {
+  const web3CreateAccount = (key, key2) => {
     const account = web3.eth.accounts.wallet.add({
-      privateKey: privateKeyFromUser,
-      address: addressFromUser,
+      privateKey: key,
+      address: key2,
     });
-
-    console.log(addressFromUser);
-    // console.log(account);
-    // console.log(web3.eth.accounts.wallet[0].address);
-    web3.eth.getBalance(web3.eth.accounts.wallet[0].address, function (
-      err,
-      result
-    ) {
-      if (err) {
-        console.log(err);
-      } else {
-        setAddress(web3.eth.accounts.wallet[0].address);
-        setBalance(web3.utils.fromWei(result, "ether") + " ETH");
+    const wallets = web3.eth.accounts.wallet;
+    for (var i = 0; i < wallets.length; i++) {
+      if (wallets[i].privateKey.slice(2) === key) {
+        setAddress(wallets[i].address);
+        web3.eth.getBalance(web3.eth.accounts.wallet[i].address, function (
+          err,
+          result
+        ) {
+          if (err) {
+            console.log(err);
+          } else {
+            setBalance(web3.utils.fromWei(result, "ether") + " ETH");
+          }
+        });
       }
-    });
+    }
   };
 
   return (
