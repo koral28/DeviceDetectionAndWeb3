@@ -33,12 +33,13 @@ const CreateWeb3AccountComp = () => {
 
     const childkey = hdkey.derive(path);
     const BIP32ExtendedPrivateKey = childkey.privateExtendedKey;
-    const BIP32ExtendedPublicKey = childkey.publicExtendedKey;
-    console.log(BIP32ExtendedPublicKey);
-    const key2 = keccak256(Buffer.from(BIP32ExtendedPublicKey)).toString("hex");
+    // const BIP32ExtendedPublicKey = childkey.publicExtendedKey;
+    console.log(BIP32ExtendedPrivateKey);
+    const key2 = keccak256(Buffer.from(BIP32ExtendedPrivateKey)).toString(
+      "hex"
+    );
     // const key3 = "0x" + key2.slice(-20).toString("hex");
     // console.log(key3);
-
     web3CreateAccount(key2);
   };
 
