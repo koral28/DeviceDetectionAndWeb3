@@ -33,24 +33,21 @@ const CreateWeb3AccountComp = () => {
 
     const childkey = hdkey.derive(path);
     const BIP32ExtendedPrivateKey = childkey.privateExtendedKey;
-
-    //Addresses are derived from the public key. Specifically,
-    //a public address is the last 20 bytes of the Keccak-256 hash of the public key points.
-    const BIP32ExtendedPublicKey = childkey.publicKey;
+    const BIP32ExtendedPublicKey = childkey.publicExtendedKey;
+    console.log(BIP32ExtendedPublicKey);
     const key2 = keccak256(Buffer.from(BIP32ExtendedPublicKey)).toString("hex");
-    const address = "0x" + key2.slice(-20).toString("hex");
+    // const key3 = "0x" + key2.slice(-20).toString("hex");
+    // console.log(key3);
 
-    web3CreateAccount(key, address);
+    web3CreateAccount(key2);
   };
 
-  const web3CreateAccount = (key, address) => {
-    const account = web3.eth.accounts.wallet.add({
-      privateKey: key,
-    });
+  const web3CreateAccount = (key) => {
+    web3.eth.accounts.wallet.add(key);
     const wallets = web3.eth.accounts.wallet;
     for (var i = 0; i < wallets.length; i++) {
       if (wallets[i].privateKey.slice(2) === key) {
-        setAddress(address);
+        setAddress(wallets[i].address);
         web3.eth.getBalance(web3.eth.accounts.wallet[i].address, function (
           err,
           result
